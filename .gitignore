@@ -1,0 +1,7 @@
+*.CopyComplete
+*.cache
+*.txt
+*.pdb
+*suo
+*.suo
+.suo

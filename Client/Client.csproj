@@ -1,0 +1,38 @@
+﻿<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RootNamespace>Client</RootNamespace>
+    <AssemblyName>Client.net</AssemblyName>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <OutputPath>..\Build\</OutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <ProjectGuid>{B7E4DBC7-8B28-4E8C-A897-356FE782F993}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Deps\Hashes.cs" />
+    <Compile Include="Handlers\YachtHandler.cs" />
+    <Compile Include="Handlers\Yachts.cs" />
+    <Compile Include="Helpers\CustomMath.cs" />
+    <Compile Include="YachtClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Deps\HUD.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="CitizenFX.Core.Client, Version=0.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\CitizenFX.Core.Client.1.0.5022\lib\net45\CitizenFX.Core.Client.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>cd "$(TargetDir)"
+      mkdir "..\fel_yachts"
+      copy *Server.net.dll "..\fel_yachts"
+      copy *Client.net.dll "..\fel_yachts"
+      copy *.lua "..\fel_yachts"
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>
