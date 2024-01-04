@@ -103,13 +103,13 @@ namespace Server
 
         public void Log(string message)
         {
-            Debug.WriteLine($"{DateTime.Now.ToLongTimeString()} [INFO] Lunapark: {message}");
+            Debug.WriteLine($"{DateTime.Now.ToLongTimeString()} [INFO] Yachts: {message}");
         }
 
         public void LogError(Exception exception, string prefix = "")
         {
             string pre = (prefix != "") ? prefix : "";
-            Debug.WriteLine($"{DateTime.Now.ToLongTimeString()} [ERROR] Lunapark: {exception.Message}\n{exception.StackTrace}");
+            Debug.WriteLine($"{DateTime.Now.ToLongTimeString()} [ERROR] Yachts: {exception.Message}\n{exception.StackTrace}");
         }
          
     }

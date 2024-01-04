@@ -1,9 +1,12 @@
 ﻿using CitizenFX.Core;
 using CitizenFX.Core.Native;
+using CitizenFX.Core.NaturalMotion;
 using Client.Deps;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using static CitizenFX.Core.Native.API;
@@ -109,7 +112,7 @@ namespace Client.Handlers
         static int selectedYachtTexture = 16;
         static string selectedYachtLights1 = yacht_lights[0];
         static string selectedYachtLights2 = yacht_lights[4];
-        static string selectedYachtRails = yacht_rails[1];
+        static string selectedYachtRails = yacht_rails[1]; 
 
         List<int> yachts = new List<int>();
         List<int> yachtsInts = new List<int>();
@@ -165,7 +168,7 @@ namespace Client.Handlers
 
         List<Vector4> _yachtPos = new List<Vector4>();
 
-        bool isInHotTub = false;
+        bool isInJacuzzi = false;
 
         List<string> jacuzziObject = new List<string>()
         {
@@ -219,6 +222,10 @@ namespace Client.Handlers
 
         public async Task Init()
         {
+
+            // temp, disable ocean storms because our yachts are static (they dont move)
+            API.SetDeepOceanScaler(0.0f);
+
             sLog("Cleaning up...");
             await DESPAWNAllYachtsAsync();
 
@@ -234,19 +241,22 @@ namespace Client.Handlers
             } 
 
             sLog("Spawning all yachts...");
-            await SpawnHandler();
+            SpawnHandler();
 
 
             sLog("Customizing all yachts...");
 
             sLog("All yachts spawned and customized, have fun!");
+
+             
         } 
 
 
-        private async Task SpawnHandler()
+        private void SpawnHandler()
         {
             for (int x = 0; x < yachtList.Count(); x++)
             {
+                // broken IDs, perhaps not existing in GTA:O as well?
                 if(x == 0 || x == 7 || x == 11 || x == 13 || x == 21 || x == 26)
                     continue;
 
@@ -267,6 +277,8 @@ namespace Client.Handlers
             
             if (yachtitself)
                 SetEntityCoordsNoOffset(e, pos.X, pos.Y, pos.Z, true, false, false);
+
+            SetEntityCollision(e, true, true);
 
             switch (w)
             {
@@ -406,36 +418,35 @@ namespace Client.Handlers
         }
 
         private void SpawnYachtJacuzzi(int w)
-        {
+        { 
             int yachtHandleId = YachtArr[w].Entity.Handle;
+            int maxSeats = 6;
             Vector3 yachtRotation = GetEntityRotation(yachtHandleId, 5);
             float yachtZRotation = yachtRotation.Z;
+            Vector3 jacuzziSeat1, jacuzziSeat2, jacuzziSeat3, jacuzziSeat4, jacuzziSeat5, jacuzziSeat6; 
 
-            /*
-             *    Vector3 vector3_1;
-                  ((Vector3) ref vector3_1).\u002Ector(-49f, -1.999345f, -1.1f);
-                  this.jacuzziSeat1 = ((Entity) this.Base).GetOffsetInWorldCoords(vector3_1);
-                  Vector3 vector3_2;
-                  ((Vector3) ref vector3_2).\u002Ector(-50f, -4f, -1.1f);
-                  this.jacuzziSeat2 = ((Entity) this.Base).GetOffsetInWorldCoords(vector3_2);
-                  Vector3 vector3_3;
-                  ((Vector3) ref vector3_3).\u002Ector(-50f, 0.0f, -1.1f);
-                  this.jacuzziSeat3 = ((Entity) this.Base).GetOffsetInWorldCoords(vector3_3);
-                  Vector3 vector3_4;
-                  ((Vector3) ref vector3_4).\u002Ector(-52f, 0.0f, -1.1f);
-                  this.jacuzziSeat4 = ((Entity) this.Base).GetOffsetInWorldCoords(vector3_4);
-                  Vector3 vector3_5;
-                  ((Vector3) ref vector3_5).\u002Ector(-52f, -4f, -1.1f);
-                  this.jacuzziSeat5 = ((Entity) this.Base).GetOffsetInWorldCoords(vector3_5);
-                  Vector3 vector3_6;
-                  ((Vector3) ref vector3_6).\u002Ector(-53f, -1.999345f, -1.1f);
-                  this.jacuzziSeat6 = ((Entity) this.Base).GetOffsetInWorldCoords(vector3_6);
-            */
-             
+            Vector3 position_seat_1 = new Vector3(-49f, -1.999345f, -1.1f);
+            jacuzziSeat1 = API.GetOffsetFromEntityInWorldCoords(yachtHandleId, position_seat_1.X, position_seat_1.Y, position_seat_1.Z);
+
+            Vector3 position_seat_2 = new Vector3(-50f, -4f, -1.1f);
+            jacuzziSeat2 = API.GetOffsetFromEntityInWorldCoords(yachtHandleId, position_seat_1.X, position_seat_1.Y, position_seat_1.Z);
+
+            Vector3 position_seat_3 = new Vector3(-50f, 0.0f, -1.1f);
+            jacuzziSeat3 = API.GetOffsetFromEntityInWorldCoords(yachtHandleId, position_seat_1.X, position_seat_1.Y, position_seat_1.Z);
+
+            Vector3 position_seat_4 = new Vector3(-52f, 0.0f, -1.1f);
+            jacuzziSeat4 = API.GetOffsetFromEntityInWorldCoords(yachtHandleId, position_seat_1.X, position_seat_1.Y, position_seat_1.Z);
+            
+            Vector3 position_seat_5 = new Vector3(-52f, -4f, -1.1f);
+            jacuzziSeat5 = API.GetOffsetFromEntityInWorldCoords(yachtHandleId, position_seat_1.X, position_seat_1.Y, position_seat_1.Z);
+            
+            Vector3 position_seat_6 = new Vector3(-53f, -1.999345f, -1.1f);
+            jacuzziSeat6 = API.GetOffsetFromEntityInWorldCoords(yachtHandleId, position_seat_1.X, position_seat_1.Y, position_seat_1.Z);
+
             Vector3 RipplePos = GetOffsetFromEntityInWorldCoords(yachtHandleId, -50.8033f, -1.9774f, 0.1368f);
             Vector3 RippleRotation = new Vector3(0.0f, -50f, yachtZRotation);
 
-            Prop RippleA = new Prop(CreateObject(GetHashKey(jacuzziObject[0]), 0, 0, 0, false, false, false))
+            /*Prop RippleA = new Prop(CreateObject(GetHashKey(jacuzziObject[0]), 0, 0, 0, false, false, false))
             {
                 Position = RipplePos,
                 //Rotation = RippleRotation,
@@ -451,11 +462,16 @@ namespace Client.Handlers
                 LodDistance = 100000,
                 IsInvincible = true,
                 IsCollisionEnabled = true,
-            }; 
+            }; */
 
             ///this.SpawnProp("apa_mp_apa_yacht_jacuzzi_ripple1", this.YachtPos[this.Location], new Vector3(0.0f, 0.0f, 0.0f), 7);
             ///this.SpawnProp("apa_mp_apa_yacht_jacuzzi_ripple2", this.YachtPos[this.Location], new Vector3(0.0f, 0.0f, 0.0f), 7);
 
+        }
+
+        private async Task JacuzziHandler()
+        {
+  
         }
 
 
@@ -615,6 +631,55 @@ namespace Client.Handlers
 
             await Delay(1000);
             Log("Cleaned up...");
+        }
+
+        public enum PlayerComponents
+        {
+            COMPONENT_PANTS     = 4,
+            COMPONENT_TSHIRT    = 8,
+            COMPONENT_VEST      = 9,
+            COMPONENT_SHOES     = 6,
+            COMPONENT_BAG       = 5,
+        }
+         
+
+        void OnJacuzziEnter(bool enter)
+        {
+            int ped = API.PlayerPedId();
+            /*int idx_Pants = API.GetPedPropIndex(ped, (int)PlayerComponents.COMPONENT_PANTS);
+            int idx_TShirt = API.GetPedPropIndex(ped, (int)PlayerComponents.COMPONENT_TSHIRT);
+            int idx_Vest = API.GetPedPropIndex(ped, (int)PlayerComponents.COMPONENT_VEST);
+            int idx_Shoes = API.GetPedPropIndex(ped, (int)PlayerComponents.COMPONENT_SHOES);
+            int idx_Bag = API.GetPedPropIndex(ped, (int)PlayerComponents.COMPONENT_BAG);*/
+
+            int drawable_comp_id_Pants = API.GetNumberOfPedDrawableVariations(ped, (int)PlayerComponents.COMPONENT_BAG);
+            int drawable_comp_id_TShirt = API.GetNumberOfPedDrawableVariations(ped, (int)PlayerComponents.COMPONENT_BAG);
+            int drawable_comp_id_Vest = API.GetNumberOfPedDrawableVariations(ped, (int)PlayerComponents.COMPONENT_BAG);
+            int drawable_comp_id_Shoes = API.GetNumberOfPedDrawableVariations(ped, (int)PlayerComponents.COMPONENT_BAG);
+            int drawable_comp_id_bag = API.GetNumberOfPedDrawableVariations(ped, (int)PlayerComponents.COMPONENT_BAG);
+            
+            int texture_comp_id_Pants = API.GetNumberOfPedTextureVariations(ped, drawable_comp_id_Pants,(int)PlayerComponents.COMPONENT_BAG);
+            int texture_comp_id_TShirt = API.GetNumberOfPedTextureVariations(ped, drawable_comp_id_TShirt, (int)PlayerComponents.COMPONENT_BAG);
+            int texture_comp_id_Vest = API.GetNumberOfPedTextureVariations(ped, drawable_comp_id_Vest, (int)PlayerComponents.COMPONENT_BAG);
+            int texture_comp_id_Shoes = API.GetNumberOfPedTextureVariations(ped, drawable_comp_id_Shoes, (int)PlayerComponents.COMPONENT_BAG);
+            int texture_comp_id_bag = API.GetNumberOfPedTextureVariations(ped, drawable_comp_id_bag, (int)PlayerComponents.COMPONENT_BAG);
+
+
+            if (enter)
+            {
+                SetPedComponentVariation(ped, (int)PlayerComponents.COMPONENT_PANTS, 0, 0, 0);
+                SetPedComponentVariation(ped, (int)PlayerComponents.COMPONENT_TSHIRT, 0, 0, 0);
+                SetPedComponentVariation(ped, (int)PlayerComponents.COMPONENT_VEST, 0, 0, 0);
+                SetPedComponentVariation(ped, (int)PlayerComponents.COMPONENT_SHOES, 0, 0, 0); 
+                SetPedComponentVariation(ped, (int)PlayerComponents.COMPONENT_BAG, 0, 0, 0); 
+            } else
+            {
+                SetPedComponentVariation(ped, (int)PlayerComponents.COMPONENT_PANTS, drawable_comp_id_Pants, texture_comp_id_Pants, 0);
+                SetPedComponentVariation(ped, (int)PlayerComponents.COMPONENT_TSHIRT, drawable_comp_id_TShirt, texture_comp_id_TShirt, 0);
+                SetPedComponentVariation(ped, (int)PlayerComponents.COMPONENT_VEST, drawable_comp_id_Vest, texture_comp_id_Vest, 0);
+                SetPedComponentVariation(ped, (int)PlayerComponents.COMPONENT_SHOES, drawable_comp_id_Shoes, texture_comp_id_Shoes, 0);
+                SetPedComponentVariation(ped, (int)PlayerComponents.COMPONENT_BAG, drawable_comp_id_bag, texture_comp_id_bag, 0);
+            }
         }
 
         // 35 yachts, 35 interiors, 35 lods

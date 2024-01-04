@@ -5,3 +5,7 @@
 *suo
 *.suo
 .suo
+.vs
+Build
+Server/obj
+Client/obj
